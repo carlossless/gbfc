@@ -3,8 +3,6 @@
 #include <util/delay.h>
 #include "74hc595.h"
 
-#define NOP asm volatile ("nop");
-
 // FLASH CONTROL
 // F5 = CE#
 // F6 = OE#
@@ -29,8 +27,7 @@ void sst39_write(uint16_t addr, uint8_t data)
   sst39_send_cmd(0x2AAA, 0x55);
   sst39_send_cmd(0x5555, 0xA0);
   sst39_send_cmd(addr, data);
-  NOP;
-  NOP;
+  _delay_us(20); //20us program delay
 }
 
 uint8_t sst39_read(uint16_t addr)
@@ -57,11 +54,12 @@ void sst39_erase(void)
   sst39_send_cmd(0x5555, 0xAA);
   sst39_send_cmd(0x2AAA, 0x55);
   sst39_send_cmd(0x5555, 0x10);
-  _delay_ms(100);
+  _delay_ms(20);
 }
 
 uint8_t sst39_read_id(uint8_t option_addr)
 {
+  //enter id mode
   DDRD = 0xFF;
   PORTF &= ~(1 << 6); //OE# low
   PORTF |= (1 << 5) | (1 << 7); //CE# WE# high
@@ -69,24 +67,21 @@ uint8_t sst39_read_id(uint8_t option_addr)
   sst39_send_cmd(0x5555, 0xAA);
   sst39_send_cmd(0x2AAA, 0x55);
   sst39_send_cmd(0x5555, 0x90);
-  NOP;
-  NOP;
-  NOP;
+  _delay_us(0.15); //150ns enter id mode delay
   PORTF &= ~((1 << 5) | (1 << 6)); //CE# OE# low
   DDRD = 0x00;
   PORTD = 0x00;
   shift16(option_addr);
   uint8_t data = PIND;
   PORTF |= (1 << 5); //CE# high
-  //Don't forget to exit. I am an idiota!
+
+  //exit id mode
   DDRD = 0xFF;
   PORTF |= (1 << 6); //OE# high
   sst39_send_cmd(0x5555, 0xAA);
   sst39_send_cmd(0x2AAA, 0x55);
   sst39_send_cmd(0x5555, 0xF0);
-  NOP;
-  NOP;
-  NOP;
+  _delay_us(0.15); //150ns exit id mode delay
   PORTD =~ (1 << 5); //CE# low
   return data;
 }
@@ -104,9 +99,7 @@ inline void sst39_send_cmd_slow(uint16_t addr, uint8_t data)
 {
   shift16(addr);
   PORTB &= ~((1 << 5) | (1 << 7)); //set CE# and WE# to low (latch address)
-  NOP;
-  NOP;
-  NOP;
+  _delay_us(0.15);
   PORTD = 0x00;
   PORTD = data;
   PORTB |= (1 << 5) | (1 << 7); //set CE# and WE# to high (latch data)

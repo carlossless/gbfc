@@ -5,7 +5,7 @@ BINDIR = bin
 DEVICE     = atmega32u4
 CLOCK      = 16000000
 PROGRAMMER = -c usbasp
-FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0x5E:m -U efuse:w:0xF3:m #Defaults, but JTAG disabled.
+FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xDE:m -U efuse:w:0xF3:m #Defaults, but JTAG disabled.
 
 SOURCES = $(wildcard $(SRCDIR)/*.c)
 OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
