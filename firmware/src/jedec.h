@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 void jedec_init();
+void jedec_prepare_for_gb();
 int jedec_write(uint16_t addr, uint8_t data);
 uint8_t jedec_read(uint16_t addr);
 void jedec_chip_erase(void);

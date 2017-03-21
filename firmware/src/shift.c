@@ -4,6 +4,7 @@
 
 // B4 = SRCLK (SHIFT CLOCK)
 // B5 = RCLK (LATCH CLOCK)
+// B6 = OE#
 // C6 = SER 1
 // C7 = SER 2
 
@@ -12,14 +13,20 @@
 
 #define SRCLK (1 << 4)
 #define RCLK (1 << 5)
+#define OE (1 << 6)
 #define SER_1 (1 << SER_1_PIN)
 #define SER_2 (1 << SER_2_PIN)
 
 void shift_init()
 {
   DDRC |= SER_1 | SER_2;
-  DDRB |= SRCLK | RCLK;
-  PORTB &= ~(SRCLK | RCLK);
+  DDRB |= SRCLK | RCLK | OE;
+  PORTB &= ~(SRCLK | RCLK | OE);
+}
+
+void shift_prepare_for_gb()
+{
+  PORTB |= OE; // high-z outputs
 }
 
 void shift_push(uint16_t addr)

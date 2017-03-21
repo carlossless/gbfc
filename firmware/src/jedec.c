@@ -37,6 +37,17 @@ void jedec_init()
   setup_input();
 }
 
+void jedec_prepare_for_gb()
+{
+    shift_prepare_for_gb();
+    DDRF  &= ~(CE | OE); // all inputs
+    PORTF &= ~(CE | OE); // all high-z
+    DDRF  |= WE; // WE high
+    PORTF |= WE; // WE high
+    DDRD   = 0x00;
+    PORTD  = 0x00;
+}
+
 static inline void jedec_read_enable()
 {
   PORTF &= ~(CE | OE); //CE# OE# to low

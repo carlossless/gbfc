@@ -1,0 +1,118 @@
+
+(rules PCB gb-flashcart
+  (snap_angle 
+    fortyfive_degree
+  )
+  (autoroute_settings
+    (fanout off)
+    (autoroute on)
+    (postroute on)
+    (vias on)
+    (via_costs 50)
+    (plane_via_costs 5)
+    (start_ripup_costs 100)
+    (start_pass_no 152)
+    (layer_rule F.Cu
+      (active on)
+      (preferred_direction vertical)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 2.2)
+    )
+    (layer_rule B.Cu
+      (active on)
+      (preferred_direction horizontal)
+      (preferred_direction_trace_costs 1.0)
+      (against_preferred_direction_trace_costs 1.8)
+    )
+  )
+  (rule
+    (width 250.0)
+    (clear 200.2)
+    (clear 125.0 (type smd_to_turn_gap))
+    (clear 50.0 (type smd_smd))
+  )
+  (padstack "Via[0-1]_600:400_um"
+    (shape
+      (circle F.Cu 600.0 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 600.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (padstack "Via[0-1]_700:500_um"
+    (shape
+      (circle F.Cu 700.0 0.0 0.0)
+    )
+    (shape
+      (circle B.Cu 700.0 0.0 0.0)
+    )
+    (attach off)
+  )
+  (via 
+    "Via[0-1]_600:400_um" "Via[0-1]_600:400_um" default
+  )
+  (via 
+    "Via[0-1]_700:500_um" "Via[0-1]_700:500_um" default
+  )
+  (via 
+    "Via[0-1]_600:400_um-kicad_default" "Via[0-1]_600:400_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_700:500_um-kicad_default" "Via[0-1]_700:500_um" "kicad_default"
+  )
+  (via 
+    "Via[0-1]_600:400_um-Power" "Via[0-1]_600:400_um" Power
+  )
+  (via 
+    "Via[0-1]_700:500_um-Power" "Via[0-1]_700:500_um" Power
+  )
+  (via_rule
+    default "Via[0-1]_600:400_um"
+  )
+  (via_rule
+    "kicad_default" "Via[0-1]_600:400_um-kicad_default"
+  )
+  (via_rule
+    Power "Via[0-1]_700:500_um-Power"
+  )
+  (class default
+    (clearance_class default)
+    (via_rule default)
+    (rule
+      (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class "kicad_default"
+    "Net-(C1-Pad1)" "Net-(C2-Pad1)" "Net-(C3-Pad1)" TCK TDO TMS RST "Net-(P1-Pad7)"
+    "Net-(P1-Pad8)" TDI "Net-(P2-Pad2)" OE# "Net-(P2-Pad5)" A0 A1 A2
+    A3 A4 A5 A6 A7 A8 A9 A10
+    A11 A12 A13 A14 CE# D0 D1 D2
+    D3 D4 D5 D6 D7 "Net-(P2-Pad30)" "Net-(P2-Pad31)" "Net-(P3-Pad2)"
+    "Net-(P3-Pad3)" "Net-(P3-Pad4)" "USB_D-" "USB_D+" "Net-(U1-Pad1)" A15 "Net-(U1-Pad30)" WE#
+    "Net-(U3-Pad9)" "A_SRCLK" "A_RCLK" "A_OE#" "A_SER_8_15" "Net-(U4-Pad9)" "A_SER_0_7" "Net-(U2-Pad1)"
+    "Net-(U2-Pad15)" "Net-(U2-Pad8)" "Net-(U2-Pad12)" "Net-(U2-Pad40)" "Net-(U2-Pad41)" "Net-(C4-Pad1)" "Net-(R4-Pad2)" "Net-(U1-Pad2)"
+    (clearance_class "kicad_default")
+    (via_rule kicad_default)
+    (rule
+      (width 250.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+  (class Power
+    GND VCC
+    (clearance_class Power)
+    (via_rule Power)
+    (rule
+      (width 400.0)
+    )
+    (circuit 
+      (use_layer F.Cu B.Cu)
+    )
+  )
+)
