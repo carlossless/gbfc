@@ -4,14 +4,14 @@ BINDIR = bin
 
 DEVICE     = atmega32u4
 CLOCK      = 16000000
-PROGRAMMER = -c usbasp
+PROGRAMMER = -c atmelice_isp -B 1
 FUSES      = -U hfuse:w:0xD9:m -U lfuse:w:0xDE:m -U efuse:w:0xF3:m #Defaults, but JTAG disabled.
 
 SOURCES = $(wildcard $(SRCDIR)/*.c)
 OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
-COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE)
+COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -std=c11
 
 .PHONY: all flash fuse clean disasm
 

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
-void shift16(uint16_t addr);
+void shift_init();
+void shift_push(uint16_t addr);
 
 #endif
