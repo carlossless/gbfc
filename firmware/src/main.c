@@ -14,9 +14,6 @@ static void init();
 static int write_rom();
 static int verify_rom();
 
-static int write_count();
-static int verify_count();
-
 const uint16_t rom_header_start = 0x0000;
 const uint16_t rom_header_size = 11;
 const unsigned char rom_header[] PROGMEM =
@@ -48,30 +45,38 @@ int main(void)
 
 static int write_rom()
 {
-  for (int s = 0; s < rom_segment_count; s++) {
-    uint16_t start = rom_start_addresses[s];
-    uint16_t end = start + rom_sizes[s];
+  int segment_start = 0;
+  for (int s = 0; s < ROM_SEGMENT_COUNT; s++) {
+    rom_segment segment = rom_segments[s];
+    uint16_t start = segment.start;
+    uint16_t size = segment.size;
+    uint16_t end = start + size;
     for (uint16_t addr = start; addr < end; addr++) {
-      uint8_t data = pgm_read_byte(&(rom_data[s][addr - start]));
+      uint8_t data = pgm_read_byte(&(rom_data[addr - start + segment_start]));
       if (!jedec_write(addr, data)) {
         return 0;
       }
     }
+    segment_start += size;
   }
   return 1;
 }
 
 static int verify_rom()
 {
-  for (int s = 0; s < rom_segment_count; s++) {
-    uint16_t start = rom_start_addresses[s];
-    uint16_t end = start + rom_sizes[s];
+  int segment_start = 0;
+  for (int s = 0; s < ROM_SEGMENT_COUNT; s++) {
+    rom_segment segment = rom_segments[s];
+    uint16_t start = segment.start;
+    uint16_t size = segment.size;
+    uint16_t end = start + size;
     for (uint16_t addr = start; addr < end; addr++) {
-      uint8_t data = pgm_read_byte(&(rom_data[s][addr - start]));
+      uint8_t data = pgm_read_byte(&(rom_data[addr - start + segment_start]));
       if (data != jedec_read(addr)) {
         return 0;
       }
     }
+    segment_start += size;
   }
   return 1;
 }

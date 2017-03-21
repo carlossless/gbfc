@@ -17,21 +17,22 @@
 
 void shift_init()
 {
-  DDRC &= ~(SER_1 | SER_2);
-  DDRB &= ~(SRCLK | RCLK);
+  DDRC |= SER_1 | SER_2;
+  DDRB |= SRCLK | RCLK;
+  PORTB &= ~(SRCLK | RCLK);
 }
 
 void shift_push(uint16_t addr)
 {
-  //shift registers share clock pins but use different serial in pins
+  // shift registers share clock pins but use different serial in pins
   const uint8_t* data = (const uint8_t*) &addr;
   for (int8_t x = 7; x >= 0; --x) {
     PORTC &= ~(SER_1 | SER_2); //clear pins
     PORTC |= ((data[0] >> x) & 1) << SER_1_PIN;
     PORTC |= ((data[1] >> x) & 1) << SER_2_PIN;
     PORTB |= SRCLK;
-    PORTB &= ~SRCLK; //pulse the shift clock
+    PORTB &= ~SRCLK; // pulse the shift clock
   }
-  PORTB |= RCLK; //latch (send to parallel output)
+  PORTB |= RCLK; // latch (send to parallel output)
   PORTB &= ~RCLK;
 }

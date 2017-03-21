@@ -12,7 +12,7 @@
 // D0-7 = D0-7#
 
 // ADDRESS
-// A0-15 = LATCHED REGISTER (74hc595.h)
+// A0-15 = LATCHED REGISTER (shift.h)
 
 #define CE (1 << 5)
 #define OE (1 << 6)
@@ -31,7 +31,7 @@ static inline void jedec_send_cmd_slow(uint16_t addr, uint8_t data);
 
 void jedec_init()
 {
-  shift_register_init();
+  shift_init();
   DDRF  |= CE | OE | WE;
   PORTF |= CE | OE | WE;
   setup_input();
@@ -54,7 +54,7 @@ static inline void jedec_write_enable()
 
 static inline void jedec_write_disable()
 {
-  PORTF |= CE | OE; //CE# WE# to high
+  PORTF |= CE | WE; //CE# WE# to high
 }
 
 static inline void setup_input()
