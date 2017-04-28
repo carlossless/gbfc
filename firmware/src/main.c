@@ -16,23 +16,24 @@ static int verify_rom();
 
 int main(void)
 {
-  init();
-  _delay_us(100);
-  uint8_t device_id = jedec_read_id(1);
-  if (device_id == 0xB5) {
-    PORTF |= (1 << 0);
-  } else {
-    PORTF &= ~(1 << 0);
-  }
-  jedec_chip_erase();
-  PORTF &= ~(1 << 0);
-  if (write_rom() && verify_rom()) {
-    PORTF |= (1 << 0);
-  } else {
-    PORTF &= ~(1 << 0);
-  }
+  // init();
+  // _delay_us(100);
+  // uint8_t device_id = jedec_read_id(1);
+  // if (device_id == 0xB5) {
+  //   PORTF |= (1 << 0);
+  // } else {
+  //   PORTF &= ~(1 << 0);
+  // }
+  // jedec_chip_erase();
+  // PORTF &= ~(1 << 0);
+  // if (write_rom() && verify_rom()) {
+  //   PORTF |= (1 << 0);
+  // } else {
+  //   PORTF &= ~(1 << 0);
+  // }
   jedec_prepare_for_gb();
   for(;;) {
+
   }
   return 0;
 }

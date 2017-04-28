@@ -4,9 +4,9 @@
 #include "shift.h"
 
 // FLASH CONTROL
-// F5 = CE#
-// F6 = OE#
-// F7 = WE#
+// B1 = CE#
+// B2 = OE#
+// B3 = WE#
 
 // DATA
 // D0-7 = D0-7#
@@ -14,9 +14,9 @@
 // ADDRESS
 // A0-15 = LATCHED REGISTER (shift.h)
 
-#define CE (1 << 5)
-#define OE (1 << 6)
-#define WE (1 << 7)
+#define CE (1 << 1)
+#define OE (1 << 2)
+#define WE (1 << 3)
 
 static inline void setup_input();
 static inline void setup_output();
@@ -32,40 +32,40 @@ static inline void jedec_send_cmd_slow(uint16_t addr, uint8_t data);
 void jedec_init()
 {
   shift_init();
-  DDRF  |= CE | OE | WE;
-  PORTF |= CE | OE | WE;
+  DDRB  |= CE | OE | WE;
+  PORTB |= CE | OE | WE;
   setup_input();
 }
 
 void jedec_prepare_for_gb()
 {
     shift_prepare_for_gb();
-    DDRF  &= ~(CE | OE); // all inputs
-    PORTF &= ~(CE | OE); // all high-z
-    DDRF  |= WE; // WE high
-    PORTF |= WE; // WE high
+    DDRB  &= ~(CE | OE); // all inputs
+    PORTB &= ~(CE | OE); // all high-z
+    DDRB  |= WE; // WE high
+    PORTB |= WE; // WE high
     DDRD   = 0x00;
     PORTD  = 0x00;
 }
 
 static inline void jedec_read_enable()
 {
-  PORTF &= ~(CE | OE); //CE# OE# to low
+  PORTB &= ~(CE | OE); //CE# OE# to low
 }
 
 static inline void jedec_read_disable()
 {
-  PORTF |= CE | OE; //CE# OE# to high
+  PORTB |= CE | OE; //CE# OE# to high
 }
 
 static inline void jedec_write_enable()
 {
-  PORTF &= ~(CE | WE); //CE# WE# to low
+  PORTB &= ~(CE | WE); //CE# WE# to low
 }
 
 static inline void jedec_write_disable()
 {
-  PORTF |= CE | WE; //CE# WE# to high
+  PORTB |= CE | WE; //CE# WE# to high
 }
 
 static inline void setup_input()
