@@ -18,13 +18,13 @@
 #define OE (1 << 2)
 #define WE (1 << 3)
 
-static inline void setup_input();
-static inline void setup_output();
+static inline void setup_input(void);
+static inline void setup_output(void);
 
-static inline void jedec_read_enable();
-static inline void jedec_read_disable();
-static inline void jedec_write_enable();
-static inline void jedec_write_disable();
+static inline void jedec_read_enable(void);
+static inline void jedec_read_disable(void);
+static inline void jedec_write_enable(void);
+static inline void jedec_write_disable(void);
 
 static inline void jedec_send_cmd(uint16_t addr, uint8_t data);
 static inline void jedec_send_cmd_slow(uint16_t addr, uint8_t data);

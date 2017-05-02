@@ -1,44 +1,32 @@
-SRCDIR = src
-OBJDIR = obj
-BINDIR = bin
+MCU          = atmega32u4
+ARCH         = AVR8
+BOARD        = NONE
+F_CPU        = 16000000
+F_USB        = $(F_CPU)
+OPTIMIZATION = s
+TARGET       = gbfc
+SRC          = main.c jedec.c shift.c Descriptors.c DataflashManager.c SCSI.c $(LUFA_SRC_USB) $(LUFA_SRC_USBCLASS)
+LUFA_PATH    = ../LUFA
+CC_FLAGS     = -DUSE_LUFA_CONFIG_HEADER -IConfig/
+LD_FLAGS     =
+FUSES        = -U hfuse:w:0x99:m -U lfuse:w:0xCE:m -U efuse:w:0xF3:m
+AVRDUDE_PROGRAMMER = atmelice
 
-DEVICE     = atmega32u4
-CLOCK      = 16000000
-PROGRAMMER = -c atmelice
-#PROGRAMMER = -c flip1 -u #when using the DFU bootloader
-FUSES      = -U hfuse:w:0x99:m -U lfuse:w:0xDE:m -U efuse:w:0xF3:m
+# Default target
+all:
 
-SOURCES = $(wildcard $(SRCDIR)/*.c)
-OBJECTS = $(SOURCES:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
+# Include LUFA-specific DMBS extension modules
+DMBS_LUFA_PATH ?= $(LUFA_PATH)/Build/LUFA
+include $(DMBS_LUFA_PATH)/lufa-sources.mk
+include $(DMBS_LUFA_PATH)/lufa-gcc.mk
 
-AVRDUDE = avrdude $(PROGRAMMER) -p $(DEVICE)
-COMPILE = avr-gcc -Wall -Os -DF_CPU=$(CLOCK) -mmcu=$(DEVICE) -std=c11
-
-.PHONY: all flash fuse clean disasm
-
-all: $(BINDIR)/main.hex
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
-	$(COMPILE) -c $< -o $@
-
-$(BINDIR)/main.elf: $(OBJECTS) | $(BINDIR)
-	$(COMPILE) -o $@ $(OBJECTS)
-
-$(OBJDIR) $(BINDIR):
-	@mkdir -p $@
-
-flash: $(BINDIR)/main.hex
-	$(AVRDUDE) -U flash:w:$<:i
-
-fuse:
-	$(AVRDUDE) $(FUSES)
-
-clean:
-	rm -rf $(BINDIR) $(OBJDIR)
-
-$(BINDIR)/main.hex: $(BINDIR)/main.elf
-	avr-objcopy -j .text -j .data -O ihex $< $@
-	avr-size --format=avr --mcu=$(DEVICE) $<
-
-disasm:	$(BINDIR)/main.elf
-	avr-objdump -d $<
+# Include common DMBS build system modules
+DMBS_PATH      ?= $(LUFA_PATH)/Build/DMBS/DMBS
+include $(DMBS_PATH)/core.mk
+include $(DMBS_PATH)/cppcheck.mk
+include $(DMBS_PATH)/doxygen.mk
+include $(DMBS_PATH)/dfu.mk
+include $(DMBS_PATH)/gcc.mk
+include $(DMBS_PATH)/hid.mk
+include $(DMBS_PATH)/avrdude.mk
+include $(DMBS_PATH)/atprogram.mk

@@ -62,7 +62,7 @@ include $(DMBS_PATH)/avrdude.mk
 include $(DMBS_PATH)/atprogram.mk
 
 PROGRAMMER = -c atmelice
-FUSES      = -U hfuse:w:0x99:m -U lfuse:w:0xde:m -U efuse:w:0xf3:m
+FUSES      = -U hfuse:w:0x98:m -U lfuse:w:0xde:m -U efuse:w:0xf3:m
 
 AVRDUDE = avrdude $(PROGRAMMER) -p $(MCU)
 

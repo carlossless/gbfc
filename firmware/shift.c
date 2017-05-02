@@ -17,14 +17,14 @@
 #define SER_1 (1 << SER_1_PIN)
 #define SER_2 (1 << SER_2_PIN)
 
-void shift_init()
+void shift_init(void)
 {
   DDRC |= SER_1 | SER_2;
   DDRB |= SRCLK | RCLK | OE;
   PORTB &= ~(SRCLK | RCLK | OE);
 }
 
-void shift_prepare_for_gb()
+void shift_prepare_for_gb(void)
 {
   PORTB |= OE; // high-z outputs
 }
