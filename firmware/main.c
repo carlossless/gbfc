@@ -6,8 +6,8 @@
 
 #include "Descriptors.h"
 
-#include "SCSI.h"
-#include "DataflashManager.h"
+#include "scsi.h"
+#include "flash.h"
 
 #include <LUFA/Drivers/Board/LEDs.h>
 #include <LUFA/Drivers/USB/USB.h>
@@ -28,38 +28,34 @@ bool CALLBACK_MS_Device_SCSICommandReceived(USB_ClassInfo_MS_Device_t* const MSI
  *  passed to all Mass Storage Class driver functions, so that multiple instances of the same class
  *  within a device can be differentiated from one another.
  */
-USB_ClassInfo_MS_Device_t Disk_MS_Interface =
-	{
-		.Config =
-			{
-				.InterfaceNumber           = INTERFACE_ID_MassStorage,
-				.DataINEndpoint            =
-					{
-						.Address           = MASS_STORAGE_IN_EPADDR,
-						.Size              = MASS_STORAGE_IO_EPSIZE,
-						.Banks             = 1,
-					},
-				.DataOUTEndpoint           =
-					{
-						.Address           = MASS_STORAGE_OUT_EPADDR,
-						.Size              = MASS_STORAGE_IO_EPSIZE,
-						.Banks             = 1,
-					},
-				.TotalLUNs                 = 1,
-			},
-	};
+USB_ClassInfo_MS_Device_t Disk_MS_Interface = {
+  .Config = {
+    .InterfaceNumber = INTERFACE_ID_MassStorage,
+    .DataINEndpoint = {
+      .Address = MASS_STORAGE_IN_EPADDR,
+      .Size = MASS_STORAGE_IO_EPSIZE,
+      .Banks = 1
+    },
+    .DataOUTEndpoint = {
+      .Address = MASS_STORAGE_OUT_EPADDR,
+      .Size = MASS_STORAGE_IO_EPSIZE,
+      .Banks = 1
+    },
+    .TotalLUNs = 1
+  }
+};
 
 int main(void)
 {
   init();
 
-	GlobalInterruptEnable();
+  GlobalInterruptEnable();
 
-	for (;;)
-	{
-		MS_Device_USBTask(&Disk_MS_Interface);
-		USB_USBTask();
-	}
+  for (;;)
+  {
+    MS_Device_USBTask(&Disk_MS_Interface);
+    USB_USBTask();
+  }
 }
 
 void init()
@@ -73,7 +69,7 @@ void init()
 
   DDRF = (1 << 0);
   PORTF = (1 << 0);
-  
+
   jedec_prepare_for_gb();
 
   USB_Init();
@@ -89,29 +85,29 @@ void init()
 /** Event handler for the library USB Connection event. */
 void EVENT_USB_Device_Connect(void)
 {
-	// LEDs_SetAllLEDs(LEDMASK_USB_ENUMERATING);
+  // LEDs_SetAllLEDs(LEDMASK_USB_ENUMERATING);
 }
 
 /** Event handler for the library USB Disconnection event. */
 void EVENT_USB_Device_Disconnect(void)
 {
-	// LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
+  // LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
 }
 
 /** Event handler for the library USB Configuration Changed event. */
 void EVENT_USB_Device_ConfigurationChanged(void)
 {
-	bool ConfigSuccess = true;
+  bool ConfigSuccess = true;
 
-	ConfigSuccess &= MS_Device_ConfigureEndpoints(&Disk_MS_Interface);
+  ConfigSuccess &= MS_Device_ConfigureEndpoints(&Disk_MS_Interface);
 
-	// LEDs_SetAllLEDs(ConfigSuccess ? LEDMASK_USB_READY : LEDMASK_USB_ERROR);
+  // LEDs_SetAllLEDs(ConfigSuccess ? LEDMASK_USB_READY : LEDMASK_USB_ERROR);
 }
 
 /** Event handler for the library USB Control Request reception event. */
 void EVENT_USB_Device_ControlRequest(void)
 {
-	MS_Device_ProcessControlRequest(&Disk_MS_Interface);
+  MS_Device_ProcessControlRequest(&Disk_MS_Interface);
 }
 
 /** Mass Storage class driver callback function the reception of SCSI commands from the host, which must be processed.
@@ -120,11 +116,11 @@ void EVENT_USB_Device_ControlRequest(void)
  */
 bool CALLBACK_MS_Device_SCSICommandReceived(USB_ClassInfo_MS_Device_t* const MSInterfaceInfo)
 {
-	bool CommandSuccess;
+  bool CommandSuccess;
 
-	// LEDs_SetAllLEDs(LEDMASK_USB_BUSY);
-	CommandSuccess = SCSI_DecodeSCSICommand(MSInterfaceInfo);
-	// LEDs_SetAllLEDs(LEDMASK_USB_READY);
+  // LEDs_SetAllLEDs(LEDMASK_USB_BUSY);
+  CommandSuccess = SCSI_DecodeSCSICommand(MSInterfaceInfo);
+  // LEDs_SetAllLEDs(LEDMASK_USB_READY);
 
-	return CommandSuccess;
+  return CommandSuccess;
 }

@@ -39,33 +39,33 @@ void jedec_init()
 
 void jedec_prepare_for_gb()
 {
-    shift_prepare_for_gb();
-    DDRB  &= ~(CE | OE); // all inputs
-    PORTB &= ~(CE | OE); // all high-z
-    DDRB  |= WE; // WE high
-    PORTB |= WE; // WE high
-    DDRD   = 0x00;
-    PORTD  = 0x00;
+  shift_prepare_for_gb();
+  DDRB  &= ~(CE | OE); // all inputs
+  PORTB &= ~(CE | OE); // all high-z
+  DDRB  |= WE; // WE high
+  PORTB |= WE; // WE high
+  DDRD   = 0x00;
+  PORTD  = 0x00;
 }
 
 static inline void jedec_read_enable()
 {
-  PORTB &= ~(CE | OE); //CE# OE# to low
+  PORTB &= ~(CE | OE); // CE# OE# to low
 }
 
 static inline void jedec_read_disable()
 {
-  PORTB |= CE | OE; //CE# OE# to high
+  PORTB |= CE | OE; // CE# OE# to high
 }
 
 static inline void jedec_write_enable()
 {
-  PORTB &= ~(CE | WE); //CE# WE# to low
+  PORTB &= ~(CE | WE); // CE# WE# to low
 }
 
 static inline void jedec_write_disable()
 {
-  PORTB |= CE | WE; //CE# WE# to high
+  PORTB |= CE | WE; // CE# WE# to high
 }
 
 static inline void setup_input()
@@ -101,7 +101,7 @@ retry:
   jedec_send_cmd(0x2AAA, 0x55);
   jedec_send_cmd(0x5555, 0xA0);
   jedec_send_cmd(addr, data);
-  _delay_us(20); //20us program delay
+  _delay_us(20); // 20us program delay
   if (jedec_read(addr) == data) {
     return 1;
   }

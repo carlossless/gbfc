@@ -1,5 +1,5 @@
-#ifndef _74HC595_H_
-#define _74HC595_H_
+#ifndef _SHIFT_H_
+#define _SHIFT_H_
 
 #include <stdint.h>
 

@@ -36,8 +36,8 @@
  *  as a SD card or EEPROM), functions similar to these will need to be generated.
  */
 
-#define  INCLUDE_FROM_DATAFLASHMANAGER_C
-#include "DataflashManager.h"
+#define  INCLUDE_FROM_FLASH_C
+#include "flash.h"
 
 /** Writes blocks (OS blocks, not Dataflash pages) to the storage medium, the board Dataflash IC(s), from
  *  the pre-selected data OUT endpoint. This routine reads in OS sized blocks from the endpoint and writes
@@ -51,36 +51,36 @@ void DataflashManager_WriteBlocks(USB_ClassInfo_MS_Device_t* const MSInterfaceIn
                                   const uint32_t BlockAddress,
                                   uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage          = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
-	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
-	bool     UsingSecondBuffer   = false;
+  uint16_t CurrDFPage          = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+  uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+  uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
+  bool     UsingSecondBuffer   = false;
 
   //erase firt writable sector
   jedec_init();
   jedec_sector_erase(CurrDFPage * DATAFLASH_PAGE_SIZE);
 
-	/* Wait until endpoint is ready before continuing */
-	if (Endpoint_WaitUntilReady())
-	  return;
+  /* Wait until endpoint is ready before continuing */
+  if (Endpoint_WaitUntilReady())
+    return;
 
-	while (TotalBlocks)
-	{
-		uint8_t BytesInBlockDiv16 = 0;
+  while (TotalBlocks)
+  {
+    uint8_t BytesInBlockDiv16 = 0;
 
-		/* Write an endpoint packet sized data block to the Dataflash */
-		while (BytesInBlockDiv16 < (VIRTUAL_MEMORY_BLOCK_SIZE >> 4))
-		{
-			/* Check if the endpoint is currently empty */
-			if (!(Endpoint_IsReadWriteAllowed()))
-			{
-				/* Clear the current endpoint bank */
-				Endpoint_ClearOUT();
+    /* Write an endpoint packet sized data block to the Dataflash */
+    while (BytesInBlockDiv16 < (VIRTUAL_MEMORY_BLOCK_SIZE >> 4))
+    {
+      /* Check if the endpoint is currently empty */
+      if (!(Endpoint_IsReadWriteAllowed()))
+      {
+        /* Clear the current endpoint bank */
+        Endpoint_ClearOUT();
 
-				/* Wait until the host has sent another packet */
-				if (Endpoint_WaitUntilReady())
-				  return;
-			}
+        /* Wait until the host has sent another packet */
+        if (Endpoint_WaitUntilReady())
+          return;
+      }
 
       /* Check if end of Dataflash page reached */
       if (CurrDFPageByteDiv16 == (DATAFLASH_PAGE_SIZE >> 4))
@@ -91,31 +91,31 @@ void DataflashManager_WriteBlocks(USB_ClassInfo_MS_Device_t* const MSInterfaceIn
         jedec_sector_erase(CurrDFPage * DATAFLASH_PAGE_SIZE); //TODO: not exactly the right place to do this
       }
 
-			/* Write one 16-byte chunk of data to the Dataflash */
+      /* Write one 16-byte chunk of data to the Dataflash */
       for (uint16_t addr = ((CurrDFPage * DATAFLASH_PAGE_SIZE) + (CurrDFPageByteDiv16 << 4)); addr < (CurrDFPage * DATAFLASH_PAGE_SIZE) + (CurrDFPageByteDiv16 << 4) + 16; addr++) {
         jedec_write(addr, Endpoint_Read_8());
       }
 
-			/* Increment the Dataflash page 16 byte block counter */
-			CurrDFPageByteDiv16++;
+      /* Increment the Dataflash page 16 byte block counter */
+      CurrDFPageByteDiv16++;
 
-			/* Increment the block 16 byte block counter */
-			BytesInBlockDiv16++;
+      /* Increment the block 16 byte block counter */
+      BytesInBlockDiv16++;
 
-			/* Check if the current command is being aborted by the host */
-			if (MSInterfaceInfo->State.IsMassStoreReset)
-			  return;
-		}
+      /* Check if the current command is being aborted by the host */
+      if (MSInterfaceInfo->State.IsMassStoreReset)
+        return;
+    }
 
-		/* Decrement the blocks remaining counter */
-		TotalBlocks--;
-	}
+    /* Decrement the blocks remaining counter */
+    TotalBlocks--;
+  }
 
   jedec_prepare_for_gb();
 
-	/* If the endpoint is empty, clear it ready for the next packet from the host */
-	if (!(Endpoint_IsReadWriteAllowed()))
-	  Endpoint_ClearOUT();
+  /* If the endpoint is empty, clear it ready for the next packet from the host */
+  if (!(Endpoint_IsReadWriteAllowed()))
+    Endpoint_ClearOUT();
 }
 
 /** Reads blocks (OS blocks, not Dataflash pages) from the storage medium, the board Dataflash IC(s), into
@@ -130,33 +130,33 @@ void DataflashManager_ReadBlocks(USB_ClassInfo_MS_Device_t* const MSInterfaceInf
                                  const uint32_t BlockAddress,
                                  uint16_t TotalBlocks)
 {
-	uint16_t CurrDFPage          = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
-	uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
-	uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
+  uint16_t CurrDFPage          = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) / DATAFLASH_PAGE_SIZE);
+  uint16_t CurrDFPageByte      = ((BlockAddress * VIRTUAL_MEMORY_BLOCK_SIZE) % DATAFLASH_PAGE_SIZE);
+  uint8_t  CurrDFPageByteDiv16 = (CurrDFPageByte >> 4);
 
   jedec_init();
 
-	/* Wait until endpoint is ready before continuing */
-	if (Endpoint_WaitUntilReady())
-	  return;
+  /* Wait until endpoint is ready before continuing */
+  if (Endpoint_WaitUntilReady())
+    return;
 
-	while (TotalBlocks)
-	{
-		uint8_t BytesInBlockDiv16 = 0;
+  while (TotalBlocks)
+  {
+    uint8_t BytesInBlockDiv16 = 0;
 
-		/* Read an endpoint packet sized data block from the Dataflash */
-		while (BytesInBlockDiv16 < (VIRTUAL_MEMORY_BLOCK_SIZE >> 4))
-		{
-			/* Check if the endpoint is currently full */
-			if (!(Endpoint_IsReadWriteAllowed()))
-			{
-				/* Clear the endpoint bank to send its contents to the host */
-				Endpoint_ClearIN();
+    /* Read an endpoint packet sized data block from the Dataflash */
+    while (BytesInBlockDiv16 < (VIRTUAL_MEMORY_BLOCK_SIZE >> 4))
+    {
+      /* Check if the endpoint is currently full */
+      if (!(Endpoint_IsReadWriteAllowed()))
+      {
+        /* Clear the endpoint bank to send its contents to the host */
+        Endpoint_ClearIN();
 
-				/* Wait until the endpoint is ready for more data */
-				if (Endpoint_WaitUntilReady())
-				  return;
-			}
+        /* Wait until the endpoint is ready for more data */
+        if (Endpoint_WaitUntilReady())
+          return;
+      }
 
       /* Check if end of Dataflash page reached */
       if (CurrDFPageByteDiv16 == (DATAFLASH_PAGE_SIZE >> 4))
@@ -166,31 +166,31 @@ void DataflashManager_ReadBlocks(USB_ClassInfo_MS_Device_t* const MSInterfaceInf
         CurrDFPage++;
       }
 
-			/* Read one 16-byte chunk of data from the Dataflash */
+      /* Read one 16-byte chunk of data from the Dataflash */
       for (uint16_t addr = (CurrDFPage * DATAFLASH_PAGE_SIZE) + (CurrDFPageByteDiv16 << 4); addr < (CurrDFPage * DATAFLASH_PAGE_SIZE) + (CurrDFPageByteDiv16 << 4) + 16; addr++) {
         Endpoint_Write_8(jedec_read(addr));
       }
 
-			/* Increment the Dataflash page 16 byte block counter */
-			CurrDFPageByteDiv16++;
+      /* Increment the Dataflash page 16 byte block counter */
+      CurrDFPageByteDiv16++;
 
-			/* Increment the block 16 byte block counter */
-			BytesInBlockDiv16++;
+      /* Increment the block 16 byte block counter */
+      BytesInBlockDiv16++;
 
-			/* Check if the current command is being aborted by the host */
-			if (MSInterfaceInfo->State.IsMassStoreReset)
-			  return;
-		}
+      /* Check if the current command is being aborted by the host */
+      if (MSInterfaceInfo->State.IsMassStoreReset)
+        return;
+    }
 
-		/* Decrement the blocks remaining counter */
-		TotalBlocks--;
-	}
+    /* Decrement the blocks remaining counter */
+    TotalBlocks--;
+  }
 
   jedec_prepare_for_gb();
 
-	/* If the endpoint is full, send its contents to the host */
-	if (!(Endpoint_IsReadWriteAllowed()))
-	  Endpoint_ClearIN();
+  /* If the endpoint is full, send its contents to the host */
+  if (!(Endpoint_IsReadWriteAllowed()))
+    Endpoint_ClearIN();
 }
 
 /** Performs a simple test on the attached Dataflash IC(s) to ensure that they are working.
@@ -199,7 +199,7 @@ void DataflashManager_ReadBlocks(USB_ClassInfo_MS_Device_t* const MSInterfaceInf
  */
 bool DataflashManager_CheckDataflashOperation(void)
 {
-	uint8_t ReturnByte;
+  uint8_t ReturnByte;
 
   jedec_init();
 
@@ -208,9 +208,10 @@ bool DataflashManager_CheckDataflashOperation(void)
 
   jedec_prepare_for_gb();
 
-	/* If returned data is invalid, fail the command */
-	if (ReturnByte != 0xB5)
-	  return false;
+  /* If returned data is invalid, fail the command */
+  if (ReturnByte != 0xB5) {
+    return false;
+  }
 
-	return true;
+  return true;
 }

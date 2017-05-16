@@ -1,5 +1,5 @@
-#ifndef _SST39_H_
-#define _SST39_H_
+#ifndef _JEDEC_H_
+#define _JEDEC_H_
 
 #include <stdint.h>
 
